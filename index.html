@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>To-Do List</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.16.2/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <h1>To-Do List</h1>
+
+    <div id="newTask">
+        <h2>Add New Task</h2>
+        <label for="priority">Priority:</label>
+        <select id="priority">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+        </select>
+        <br>
+        <label for="interval">Interval:</label>
+        <input type="text" id="interval" placeholder="Enter interval">
+        <br>
+        <label for="taskName">Task Name:</label>
+        <input type="text" id="taskName" placeholder="Enter task name">
+        <br>
+        <label for="taskDescription">Task Description:</label>
+        <textarea id="taskDescription" placeholder="Enter task description"></textarea>
+        <br>
+        <button onclick="addTask()">Add Task</button>
+    </div>
+
+    <h2>Saved Tasks</h2>
+    <div id="savedTasks"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.16.2/dist/xlsx.full.min.js">
+        let tasks = [];
+
+        function addTask() {
+            var priority = document.getElementById("priority").value;
+            var interval = document.getElementById("interval").value;
+            var taskName = document.getElementById("taskName").value;
+            var taskDescription = document.getElementById("taskDescription").value;
+
+            tasks.push({
+                priority: priority,
+                interval: interval,
+                taskName: taskName,
+                taskDescription: taskDescription
+            });
+
+            displayTasks();
+
+            // Save tasks to Excel file
+            var wb = XLSX.utils.book_new();
+            var ws = XLSX.utils.json_to_sheet(tasks);
+            XLSX.utils.book_append_sheet(wb, ws, "Tasks");
+            var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+            var blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            var url = window.URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'tasks.xlsx';
+            a.click();
+        }
+
+        function displayTasks() {
+            var taskList = document.getElementById("savedTasks");
+            taskList.innerHTML = "";
+
+            tasks.forEach(function(task) {
+                var taskHTML = "<p>Priority: " + task.priority + "<br>Interval: " + task.interval + "<br>Task Name: " + task.taskName + "<br>Task Description: " + task.taskDescription + "</p>";
+                taskList.innerHTML += taskHTML;
+            });
+        }
+
+        displayTasks();
+    </script>
+</body>
+</html>
